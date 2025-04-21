@@ -5,11 +5,12 @@ import RealityKitContent
 struct ContentView: View {
     
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
-    @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
-
+    
+    var diceData: DiceData
+    
     var body: some View {
         VStack {
-            Text("🎲")
+            Text(diceData.rolledNumber == 0 ? "🎲" : "\(diceData.rolledNumber)")
                 .foregroundStyle(.yellow)
                 .font(.custom(("Meslo"), size: 100))
                 .bold()
@@ -21,6 +22,5 @@ struct ContentView: View {
 }
 
 #Preview(windowStyle: .automatic) {
-    ContentView()
-        .environment(AppModel())
+    ContentView(diceData: DiceData())
 }

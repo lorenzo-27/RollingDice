@@ -2,7 +2,17 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
+let diceMap = [
+//  [+, -]
+    [3, 4], // x (red)   pos: 3; neg: 4
+    [1, 6], // y (green) pos: 1; neg: 6
+    [2, 5], // z (blue)  pos: 2; neg: 5
+]
+
 struct ImmersiveView: View {
+    var diceData: DiceData
+    @State var droppedDice = false
+
     var body: some View {
         RealityView { content in
             // pavimento trasparente che consente la "caduta" del dado
@@ -45,6 +55,29 @@ struct ImmersiveView: View {
                 dice.components[PhysicsMotionComponent.self] = .init()
                 
                 content.add(dice)
+                
+                let _ = content.subscribe(to: SceneEvents.Update.self) { event in
+                    guard droppedDice else { return }
+                    guard let diceMotion = dice.components[PhysicsMotionComponent.self] else { return }
+                    
+                    // controllo velocità e velocità angolare per sapere se il dado è fermo
+                    if simd_length(diceMotion.linearVelocity) < 0.1 && simd_length(diceMotion.angularVelocity) < 0.1 {
+                        // controlliamo dove puntano le direzioni delle facce del dado
+                        let xDirection = dice.convert(direction: SIMD3(x: 1, y: 0, z: 0), to: nil)
+                        let yDirection = dice.convert(direction: SIMD3(x: 0, y: 1, z: 0), to: nil)
+                        let zDirection = dice.convert(direction: SIMD3(x: 0, y: 0, z: 1), to: nil)
+
+                        let greatestDirection = [
+                            0: xDirection.y,
+                            1: yDirection.y,
+                            2: zDirection.y
+                        ]
+                            // sorting basato su quale faccia del dado ha il valore di y più alto in abs
+                            .sorted(by: { abs($0.1) > abs($1.1) })[0]
+                        
+                        diceData.rolledNumber = diceMap[greatestDirection.key][greatestDirection.value > 0 ? 0 : 1]
+                    }
+                }
             }
         }
         .gesture(dragGesture)
@@ -60,11 +93,18 @@ struct ImmersiveView: View {
             }
             .onEnded { value in
                 value.entity.components[PhysicsBodyComponent.self]?.mode = .dynamic
+                
+                // controllo se il dado è stato rilasciato oppure no
+                if !droppedDice {
+                    Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                        droppedDice = true
+                    }
+                }
             }
     }
 }
 
 #Preview(immersionStyle: .mixed) {
-    ImmersiveView()
+    ImmersiveView(diceData: DiceData())
         .environment(AppModel())
 }
