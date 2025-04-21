@@ -1,26 +1,22 @@
-//
-//  ContentView.swift
-//  RollingDice
-//
-//  Created by Lorenzo Benedetti on 21/04/25.
-//
-
 import SwiftUI
 import RealityKit
 import RealityKitContent
 
 struct ContentView: View {
+    
+    @Environment(\.openImmersiveSpace) var openImmersiveSpace
+    @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
 
     var body: some View {
         VStack {
-            Model3D(named: "Scene", bundle: realityKitContentBundle)
-                .padding(.bottom, 50)
-
-            Text("Hello, world!")
-
-            ToggleImmersiveSpaceButton()
+            Text("🎲")
+                .foregroundStyle(.yellow)
+                .font(.custom(("Meslo"), size: 100))
+                .bold()
         }
-        .padding()
+        .task {
+            await openImmersiveSpace(id: "ImmersiveSpace")
+        }
     }
 }
 
