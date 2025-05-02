@@ -11,7 +11,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text(diceData.rolledNumber == 0 ? "🎲" : "\(diceData.rolledNumber)")
-                .foregroundStyle(.yellow)
+                .foregroundStyle(.blue)
                 .font(.custom(("Meslo"), size: 100))
                 .bold()
         }
