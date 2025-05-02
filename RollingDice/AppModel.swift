@@ -1,10 +1,3 @@
-//
-//  AppModel.swift
-//  RollingDice
-//
-//  Created by Lorenzo Benedetti on 21/04/25.
-//
-
 import SwiftUI
 
 /// Maintains app-wide state
